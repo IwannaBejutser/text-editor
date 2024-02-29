@@ -181,6 +181,48 @@ void editTextInFile(const std::string &filename)
     std::cout << "Текст успешно отредактирован в файле." << std::endl;
 }
 
+void searchAndReplaceWordInFile(const std::string &filename, const std::string &word)
+{
+    std::ifstream file_in(filename);
+    if (!file_in.is_open())
+    {
+        std::cerr << "Не удалось открыть файл " << filename << std::endl;
+        return;
+    }
+
+    std::vector<std::string> lines;
+    std::string line;
+    while (std::getline(file_in, line))
+    {
+        size_t pos = line.find(word);
+        while (pos != std::string::npos)
+        {
+            std::string replaceWord;
+            std::cout << "Введите слово для замены: ";
+            std::cin >> replaceWord;
+            line.replace(pos, word.length(), replaceWord);
+            pos = line.find(word, pos + replaceWord.length());
+        }
+        lines.push_back(line);
+    }
+    file_in.close();
+
+    std::ofstream file_out(filename);
+    if (!file_out.is_open())
+    {
+        std::cerr << "Не удалось открыть файл " << filename << " для записи" << std::endl;
+        return;
+    }
+
+    for (const auto &l : lines)
+    {
+        file_out << l << std::endl;
+    }
+    file_out.close();
+
+    std::cout << "Текст успешно заменен в файле." << std::endl;
+}
+
 int main()
 {
     setlocale(LC_ALL, "ru_RU.UTF-8");
@@ -191,7 +233,7 @@ int main()
 
     while (true)
     {
-        std::cout << "Выберите действие:\n1. Посмотреть файл\n2. Вставить текст\n3. Удалить текст\n4. Редактировать текст\n5. Выйти\n";
+        std::cout << "Выберите действие:\n1. Посмотреть файл\n2. Вставить текст\n3. Удалить текст\n4. Редактировать текст\n5. Найти и заменить текст\n6. Выйти\n";
         int choice;
         std::cin >> choice;
 
@@ -212,6 +254,13 @@ int main()
             editTextInFile(filename);
         }
         else if (choice == 5)
+        {
+            std::string word;
+            std::cout << "Введите слово для поиска: ";
+            std::cin >> word;
+            searchAndReplaceWordInFile(filename, word);
+        }
+        else if (choice == 6)
         {
             break;
         }
